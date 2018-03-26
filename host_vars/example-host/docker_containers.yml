@@ -1,0 +1,41 @@
+---
+docker_py_version: "3.1.1"
+docker_compose_version: "<1.20.0"
+
+docker_images:
+  - name: mshkrebtan/alpine
+    tag: "3.7"
+    dockerfile_dir: files/alpine
+
+docker_build_images: "{{ docker_images }}"
+
+docker_deploy:
+  project_name: example
+  # recreate: always
+  definition:
+    version: '2.0'
+    services:
+      container_1:
+        container_name: container_1
+        domainname: container_1
+        image: "mshkrebtan/alpine:3.7"
+        #restart: always
+        networks:
+          - example
+        ports:
+          - "127.0.0.1:2222:22"
+        user: root
+        tty: true
+      container_2:
+        container_name: container_2
+        domainname: container_2
+        image: "mshkrebtan/alpine:3.7"
+        #restart: always
+        networks:
+          - example
+        expose:
+          - "22"
+        user: root
+        tty: true
+    networks:
+      example:

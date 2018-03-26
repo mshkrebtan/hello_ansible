@@ -1,0 +1,21 @@
+---
+- name: "Install Ansible dependecy: docker"
+  become: yes
+  pip:
+    name:
+      - docker<3.0
+      # - "docker{{ '' if docker_py_version is undefined else '==' + docker_py_version }}"
+
+- name: "Install Ansible dependency: docker-compose"
+  become: yes
+  pip:
+    name:
+      # - "docker-compose{{ '' if docker_compose_version is undefined else '==' + docker_compose_version }}"
+      - docker-compose<1.20.0
+
+- name: Deploy Docker services
+  become: yes
+  docker_service:
+    project_name: "{{ docker_deploy.project_name }}"
+    definition: "{{ docker_deploy.definition }}"
+    recreate: "{{ docker_deploy.recreate | default('smart') }}"

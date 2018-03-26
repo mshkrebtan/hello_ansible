@@ -1,0 +1,31 @@
+---
+- name: "Install Ansible dependecy: docker"
+  become: true
+  pip:
+    name:
+      - docker<3.0
+
+- name: Create a temporary directory
+  tempfile:
+    state: directory
+  register: temp_dir
+
+- file:
+    path: "{{ temp_dir.path }}"
+    state: directory
+    mode: 0755
+
+- copy:
+    src: "{{ item.dockerfile_dir }}/"
+    dest: "{{ temp_dir.path }}"
+    mode: 0700
+  with_items: "{{ docker_build_images }}"
+
+- name: Build Docker images
+  become: true
+  docker_image:
+    path: "{{ temp_dir.path }}"
+    name: "{{ item.name}}"
+    tag: "{{ item.tag }}"
+    force: true
+  with_items: "{{ docker_build_images }}"

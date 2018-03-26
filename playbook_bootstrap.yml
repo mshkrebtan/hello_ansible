@@ -1,0 +1,30 @@
+---
+- name: Bootstrap hosts without python2 and/or pip installed
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install Python and PIP (Debian)
+      raw: >
+        apt-get -y update \
+          && apt-get install -y \
+               python-minimal \
+               python-pip \
+               python-apt \
+          && pip install --upgrade pip
+
+      when: ansible_os_family == "Debian"
+
+    - name: Install PIP (RedHat)
+      raw: >
+        yum -y install epel-release \
+          && yum -y update \
+          && yum -y install python-pip \
+          && pip install --upgrade pip
+
+      when: ansible_os_family == "RedHat"
+
+    - name: >
+        Try to connect to host, verify a usable python and return pong on
+        success
+      ping: null

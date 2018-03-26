@@ -1,0 +1,6 @@
+---
+- name: Bootstrap hosts without python2 and/or pip installed
+  import_playbook: playbook_bootstrap.yml
+
+- name: Do the magic
+  import_playbook: playbook_example_q4.yml

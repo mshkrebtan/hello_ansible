@@ -1,0 +1,11 @@
+---
+add_users_users:
+  - name: "{{ example_user }}"
+    home: "/home/{{ example_user }}"
+    generate_ssh_key: true
+    shell: /bin/sh
+    # password: docker_root
+    password: "$6$M/sfKTqmCJh3Vbe6$8pmHz5o7Fnr5XiXU1cisJDugrqWPX/P9md7Nm.tBr6zLDZ6gpOGQ.blNx0PxTeGSm1HRJSs6wuourWpM8jGV21"
+    authorized_keys:
+      - "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDB2sbPMyMrw+h2w5dtVEm+uvVe5HNyB1ibLxQqA/9A54ywaa2bJ3WlWAhQwRlQZW7+gCmXSONoPqQB2n5kGAEluCUH1MLTOiq1Y4zYRbmuE3OEcglUlWSjaq1KHrlDQ7wzDodaciu+2ClaPnfJhqtHvVFL8ZMLQ+8yv3E7tuhcXPIdO2zhFJBxRx3q1JUdpjAEHcHxAxOLYIdoo7zp/Bt/ITjmGCZbXBRw11yQrr4M/hEmyKY9BPJNFrIagKmhxOd3+JIJHtfa/XUynCqQpkIsWts/uAPx0/skxt5FkmZDzOJDW+KWQFRxie4sp0L3KDp4sgG/ynxawCeu/J/KUX1D mshkrebtan@intel-nuc"
+      - "{{ extra_ssh_key | default('') }}"

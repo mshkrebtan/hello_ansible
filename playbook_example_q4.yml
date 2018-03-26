@@ -1,0 +1,69 @@
+---
+- name: Deploy containers
+  hosts: example-host
+  gather_facts: false
+
+  tasks:
+    - import_role:
+        name: docker_build
+
+    - import_role:
+        name: docker_deploy
+
+    - name: Add the containers to the inventory
+      add_host:
+        name: "{{ item.value.container_name }}"
+        groups: containers
+        ansible_connection: docker
+        ansible_user: "{{ item.value.user }}"
+        ansible_python_interpreter: "/usr/bin/env python"
+        #ansible_docker_extra_args: "-H=tcp://{{ ansible_host }}:2375"
+      changed_when: false
+      with_dict: "{{ docker_deploy.definition.services }}"
+      loop_control:
+        label: "{{ item.key }}"
+
+- name: Configure the containers
+  hosts: containers
+
+  tasks:
+    - include_role:
+        name: add_users
+
+- name: Copy keys and check SSH connection
+  hosts: example-host
+
+  tasks:
+    - name: create a temporary directory
+      tempfile:
+        state: directory
+      register: temp_dir
+
+    - file:
+        path: "{{ temp_dir.path }}"
+        state: directory
+        mode: 0755
+
+    - name: Copy the RSA key
+      shell:
+        "docker cp \
+          {{ docker_deploy.definition.services.container_1.container_name }}\
+          :/home/{{ example_user }}/.ssh/id_rsa.pub \
+          {{ temp_dir.path }}/id_rsa.pub"
+
+    - name: Add authorized keys
+      delegate_to: "{{ docker_deploy.definition.services.container_2.container_name }}"
+      authorized_key:
+        user: "{{ example_user }}"
+        state: present
+        key: "{{ lookup('file', temp_dir.path + '/id_rsa.pub') }}"
+
+    - name: Check SSH
+      delegate_to: "{{ docker_deploy.definition.services.container_1.container_name }}"
+      command: "
+        ssh \
+        -o StrictHostKeyChecking=no \
+        -i /home/{{ example_user }}/.ssh/id_rsa \
+        {{ example_user}}\
+        @{{ docker_deploy.definition.services.container_2.container_name }} \
+          exit"

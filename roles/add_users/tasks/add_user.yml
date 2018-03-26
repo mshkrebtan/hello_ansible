@@ -1,0 +1,17 @@
+---
+- name: "Add user {{ user.name }}"
+  become: true
+  user:
+    name: "{{ user.name }}"
+    home: "{{ user.home }}"
+    generate_ssh_key: "{{ user.generate_ssh_key }}"
+    shell: "{{ user.shell }}"
+    password: "{{ user.password }}"
+
+- name: Add authorized keys
+  become: true
+  authorized_key:
+    user: docker_root
+    state: present
+    key: "{{ item }}"
+  with_items: "{{ user.authorized_keys }}"
